@@ -8,39 +8,15 @@ import {
   ListGroup,
   ListGroupItem
 } from "react-bootstrap";
+import "./css/index.css";
 import { AddRecipe } from "./components/AddRecipe";
 import { EditRecipe } from "./components/EditRecipe";
-import "./css/index.css";
 
 class Recipe extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      recipes: [
-        {
-          name: "Banana Smoothie",
-          ingredients: [
-            "2 bananas",
-            "1/2 cup vanilla yogurt",
-            "1/2 cup skim milk",
-            "2 teaspoons honey",
-            "pinch of cinnamon"
-          ]
-        },
-        {
-          name: "Spaghetti",
-          ingredients: ["Noodles", "Tomato Sauce", "Meatballs"]
-        },
-        {
-          name: "Split Pea Soup",
-          ingredients: [
-            "1 pound split peas",
-            "1 onion",
-            "6 carrots",
-            "4 ounces of ham"
-          ]
-        }
-      ],
+      recipes: [],
       showAdd: false,
       showEdit: false,
       currentlyEditing: 0
@@ -51,31 +27,66 @@ class Recipe extends React.Component {
     this.editRecipe = this.editRecipe.bind(this);
     this.deleteRecipe = this.deleteRecipe.bind(this);
   }
+  componentDidMount() {
+    var recipes =
+      typeof localStorage["recipes"] !== "undefined"
+        ? JSON.parse(localStorage.getItem("recipes"))
+        : [
+            {
+              name: "Banana Smoothie",
+              ingredients: [
+                "2 bananas",
+                "1/2 cup vanilla yogurt",
+                "1/2 cup skim milk",
+                "2 teaspoons honey",
+                "pinch of cinnamon"
+              ]
+            },
+            {
+              name: "Spaghetti",
+              ingredients: ["Noodles", "Tomato Sauce", "Meatballs"]
+            },
+            {
+              name: "Split Pea Soup",
+              ingredients: [
+                "1 pound split peas",
+                "1 onion",
+                "6 carrots",
+                "4 ounces of ham"
+              ]
+            }
+          ];
+    this.setState({ recipes: recipes });
+  }
   showAddModal() {
     this.setState({ showAdd: !this.state.showAdd });
   }
   showEditModal(index) {
-    this.setState({ showEdit: !this.state.showEdit, currentlyEditing: index });
+    this.setState({ currentlyEditing: index, showEdit: !this.state.showEdit });
   }
   addRecipe(recipe) {
     let recipes = this.state.recipes;
     recipes.push(recipe);
+    localStorage.setItem("recipes", JSON.stringify(recipes));
     this.setState({ recipes: recipes });
     this.showAddModal();
   }
   editRecipe(newName, newIngredients, currentlyEditing) {
     let recipes = this.state.recipes;
     recipes[currentlyEditing] = { name: newName, ingredients: newIngredients };
+    localStorage.setItem("recipes", JSON.stringify(recipes));
     this.setState({ recipes: recipes });
     this.showEditModal(currentlyEditing);
   }
   deleteRecipe(index) {
     let recipes = this.state.recipes.slice();
     recipes.splice(index, 1);
+    localStorage.setItem("recipes", JSON.stringify(recipes));
     this.setState({ recipes: recipes, currentlyEditing: 0 });
   }
   render() {
     const recipes = this.state.recipes;
+    var currentlyEditing = this.state.currentlyEditing;
     return (
       <div className="jumbotron">
         <h1>RECIPE BOX</h1>
@@ -116,10 +127,10 @@ class Recipe extends React.Component {
                 onShow={this.state.showEdit}
                 onEdit={this.editRecipe}
                 onEditModal={() => {
-                  this.showEditModal(this.state.currentlyEditing);
+                  this.showEditModal(currentlyEditing);
                 }}
-                currentlyEditing={this.state.currentlyEditing}
-                recipe={recipes[this.state.currentlyEditing]}
+                currentlyEditing={currentlyEditing}
+                recipe={recipes[currentlyEditing]}
               />
             </Panel>
           ))}
