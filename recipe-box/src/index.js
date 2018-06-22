@@ -49,6 +49,7 @@ class Recipe extends React.Component {
     this.showEditModal = this.showEditModal.bind(this);
     this.addRecipe = this.addRecipe.bind(this);
     this.editRecipe = this.editRecipe.bind(this);
+    this.deleteRecipe = this.deleteRecipe.bind(this);
   }
   showAddModal() {
     this.setState({ showAdd: !this.state.showAdd });
@@ -67,6 +68,11 @@ class Recipe extends React.Component {
     recipes[currentlyEditing] = { name: newName, ingredients: newIngredients };
     this.setState({ recipes: recipes });
     this.showEditModal(currentlyEditing);
+  }
+  deleteRecipe(index) {
+    let recipes = this.state.recipes.slice();
+    recipes.splice(index, 1);
+    this.setState({ recipes: recipes, currentlyEditing: 0 });
   }
   render() {
     const recipes = this.state.recipes;
@@ -96,7 +102,14 @@ class Recipe extends React.Component {
                   >
                     Edit
                   </Button>
-                  <Button bsStyle="danger">Delete</Button>
+                  <Button
+                    bsStyle="danger"
+                    onClick={() => {
+                      this.deleteRecipe(index);
+                    }}
+                  >
+                    Delete
+                  </Button>
                 </ButtonToolbar>
               </Panel.Body>
               <EditRecipe
