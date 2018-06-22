@@ -8,6 +8,7 @@ import {
   ListGroup,
   ListGroupItem
 } from "react-bootstrap";
+import { AddRecipe } from "./components/addrecipe";
 import "./css/index.css";
 
 class Recipe extends React.Component {
@@ -38,8 +39,20 @@ class Recipe extends React.Component {
             "4 ounces of ham"
           ]
         }
-      ]
+      ],
+      showAdd: false
     };
+    this.showAddModal = this.showAddModal.bind(this);
+    this.addRecipe = this.addRecipe.bind(this);
+  }
+  showAddModal() {
+    this.setState({ showAdd: !this.state.showAdd });
+  }
+  addRecipe(recipe) {
+    let recipes = this.state.recipes;
+    recipes.push(recipe);
+    this.setState({ recipes: recipes });
+    this.showAddModal();
   }
   render() {
     const recipes = this.state.recipes;
@@ -68,7 +81,14 @@ class Recipe extends React.Component {
             </Panel>
           ))}
         </PanelGroup>
-        <Button bsStyle="primary">Add Recipe</Button>
+        <Button bsStyle="primary" onClick={this.showAddModal}>
+          Add Recipe
+        </Button>
+        <AddRecipe
+          onShow={this.state.showAdd}
+          onAdd={this.addRecipe}
+          onAddModal={this.showAddModal}
+        />
       </div>
     );
   }
