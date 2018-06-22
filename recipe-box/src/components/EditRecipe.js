@@ -1,3 +1,4 @@
+//import the necessary files
 import React from "react";
 import {
   Modal,
@@ -6,8 +7,7 @@ import {
   FormControl,
   Button
 } from "react-bootstrap";
-
-export class AddRecipe extends React.Component {
+export class EditRecipe extends React.Component {
   constructor(props) {
     super(props);
     this.state = { name: "", ingredients: "" };
@@ -15,8 +15,24 @@ export class AddRecipe extends React.Component {
     this.handleRecipeIngredientsChange = this.handleRecipeIngredientsChange.bind(
       this
     );
-    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleEdit = this.handleEdit.bind(this);
     this.handleCancel = this.handleCancel.bind(this);
+  }
+  static getDerivedStateFromProps(props, state) {
+    const prevName = state.prevName;
+    const prevIngredients = state.prevIngredients;
+    const name =
+      prevName !== props.recipe.name ? props.recipe.name : state.name;
+    const ingredients =
+      prevIngredients !== props.recipe.ingredients.join(",")
+        ? props.recipe.ingredients.join(",")
+        : state.ingredients;
+    return {
+      prevName: props.recipe.name,
+      name,
+      prevIngredients: props.recipe.ingredients.join(","),
+      ingredients
+    };
   }
   handleRecipeNameChange(e) {
     this.setState({ name: e.target.value });
@@ -24,20 +40,22 @@ export class AddRecipe extends React.Component {
   handleRecipeIngredientsChange(e) {
     this.setState({ ingredients: e.target.value });
   }
-  handleSubmit(e) {
+  handleEdit(e) {
     e.preventDefault();
-    const onAdd = this.props.onAdd;
+    const onEdit = this.props.onEdit;
+    const currentlyEditing = this.props.currentlyEditing;
     const regExp = /\s*,\s*/;
-    var newName = this.state.name;
-    var newIngredients = this.state.ingredients.split(regExp);
-    var newRecipe = { name: newName, ingredients: newIngredients };
-    onAdd(newRecipe);
-    this.setState({ name: "", ingredients: "" });
+    var name = this.state.name;
+    var ingredients = this.state.ingredients.split(regExp);
+    onEdit(name, ingredients, currentlyEditing);
   }
   handleCancel() {
-    const onAddModal = this.props.onAddModal;
-    this.setState({ name: "", ingredients: "" });
-    onAddModal();
+    const onEditModal = this.props.onEditModal;
+    this.setState({
+      name: this.props.recipe.name,
+      ingredients: this.props.recipe.ingredients.join(",")
+    });
+    onEditModal();
   }
   render() {
     const onShow = this.props.onShow;
@@ -51,7 +69,7 @@ export class AddRecipe extends React.Component {
     return (
       <Modal show={onShow} onHide={this.handleCancel}>
         <Modal.Header closeButton>
-          <Modal.Title>New Recipe</Modal.Title>
+          <Modal.Title>Edit Recipe</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <FormGroup controlId="formControlsName">
@@ -80,7 +98,7 @@ export class AddRecipe extends React.Component {
           <Button
             disabled={!validRecipe}
             bsStyle="success"
-            onClick={this.handleSubmit}
+            onClick={this.handleEdit}
           >
             Save Recipe
           </Button>

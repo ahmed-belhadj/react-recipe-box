@@ -8,7 +8,8 @@ import {
   ListGroup,
   ListGroupItem
 } from "react-bootstrap";
-import { AddRecipe } from "./components/addrecipe";
+import { AddRecipe } from "./components/AddRecipe";
+import { EditRecipe } from "./components/EditRecipe";
 import "./css/index.css";
 
 class Recipe extends React.Component {
@@ -40,19 +41,32 @@ class Recipe extends React.Component {
           ]
         }
       ],
-      showAdd: false
+      showAdd: false,
+      showEdit: false,
+      currentlyEditing: 0
     };
     this.showAddModal = this.showAddModal.bind(this);
+    this.showEditModal = this.showEditModal.bind(this);
     this.addRecipe = this.addRecipe.bind(this);
+    this.editRecipe = this.editRecipe.bind(this);
   }
   showAddModal() {
     this.setState({ showAdd: !this.state.showAdd });
+  }
+  showEditModal(index) {
+    this.setState({ showEdit: !this.state.showEdit, currentlyEditing: index });
   }
   addRecipe(recipe) {
     let recipes = this.state.recipes;
     recipes.push(recipe);
     this.setState({ recipes: recipes });
     this.showAddModal();
+  }
+  editRecipe(newName, newIngredients, currentlyEditing) {
+    let recipes = this.state.recipes;
+    recipes[currentlyEditing] = { name: newName, ingredients: newIngredients };
+    this.setState({ recipes: recipes });
+    this.showEditModal(currentlyEditing);
   }
   render() {
     const recipes = this.state.recipes;
@@ -74,10 +88,26 @@ class Recipe extends React.Component {
                   ))}
                 </ListGroup>
                 <ButtonToolbar>
-                  <Button bsStyle="warning">Edit</Button>
+                  <Button
+                    bsStyle="warning"
+                    onClick={() => {
+                      this.showEditModal(index);
+                    }}
+                  >
+                    Edit
+                  </Button>
                   <Button bsStyle="danger">Delete</Button>
                 </ButtonToolbar>
               </Panel.Body>
+              <EditRecipe
+                onShow={this.state.showEdit}
+                onEdit={this.editRecipe}
+                onEditModal={() => {
+                  this.showEditModal(this.state.currentlyEditing);
+                }}
+                currentlyEditing={this.state.currentlyEditing}
+                recipe={recipes[this.state.currentlyEditing]}
+              />
             </Panel>
           ))}
         </PanelGroup>
